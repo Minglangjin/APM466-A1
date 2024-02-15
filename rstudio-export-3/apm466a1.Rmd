@@ -1,0 +1,254 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-02-13"
+---
+
+```{r}
+install.packages("jrvFinance")
+library(jrvFinance)
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+price <- read.csv("bonds.csv")
+price$Coupon <- price$Coupon*0.01
+
+ytm <- matrix(nrow = 10,ncol = 10)
+colnames(ytm)<-c("2024-01-08", "2024-01-09","2024-01-10","2024-01-11","2024-01-12", "2024-01-15","2024-01-16","2024-01-17","2024-01-18","2024-01-19")
+```
+
+```{r}
+#2024.01.08
+for (i in 1:10) {
+  cr = price$Coupon[i]
+  bv = price$X2024.01.08[i]
+  md = price$Maturity_Date[i]
+  ytm_08 = bond.yield("2024-01-08", md, coupon = cr , freq = 2, bv, comp.freq = 2, redemption_value = 100)
+  ytm[i,1] =  ytm_08
+}
+
+#2024.01.09
+for (i in 1:10) {
+  cr = price$Coupon[i]
+  bv = price$X2024.01.09[i]
+  md = price$Maturity_Date[i]
+  ytm_09 = bond.yield("2024-01-09", md, coupon = cr , freq = 2, bv, comp.freq = 2, redemption_value = 100)
+  ytm[i,2] =  ytm_09
+}
+
+#2024.01.10
+for (i in 1:10) {
+  cr = price$Coupon[i]
+  bv = price$X2024.01.10[i]
+  md = price$Maturity_Date[i]
+  ytm_10 = bond.yield("2024-01-10", md, coupon = cr , freq = 2, bv, comp.freq = 2, redemption_value = 100)
+  ytm[i,3] =  ytm_10
+}
+
+#2024.01.11
+for (i in 1:10) {
+  cr = price$Coupon[i]
+  bv = price$X2024.01.11[i]
+  md = price$Maturity_Date[i]
+  ytm_11 = bond.yield("2024-01-11", md, coupon = cr , freq = 2, bv, comp.freq = 2, redemption_value = 100)
+  ytm[i,4] =  ytm_11
+}
+
+
+#2024.01.12
+for (i in 1:10) {
+  cr = price$Coupon[i]
+  bv = price$X2024.01.12[i]
+  md = price$Maturity_Date[i]
+  ytm_12 = bond.yield("2024-01-12", md, coupon = cr , freq = 2, bv, comp.freq = 2, redemption_value = 100)
+  ytm[i,5] =  ytm_12
+}
+
+
+#2024.01.15
+for (i in 1:10) {
+  cr = price$Coupon[i]
+  bv = price$X2024.01.15[i]
+  md = price$Maturity_Date[i]
+  ytm_15 = bond.yield("2024-01-15", md, coupon = cr , freq = 2, bv, comp.freq = 2, redemption_value = 100)
+  ytm[i,6] =  ytm_15
+}
+
+
+#2024.01.16
+for (i in 1:10) {
+  cr = price$Coupon[i]
+  bv = price$X2024.01.16[i]
+  md = price$Maturity_Date[i]
+  ytm_16 = bond.yield("2024-01-16", md, coupon = cr , freq = 2, bv, comp.freq = 2, redemption_value = 100)
+  ytm[i,7] =  ytm_16
+}
+
+
+#2024.01.17
+for (i in 1:10) {
+  cr = price$Coupon[i]
+  bv = price$X2024.01.17[i]
+  md = price$Maturity_Date[i]
+  ytm_17 = bond.yield("2024-01-17", md, coupon = cr , freq = 2, bv, comp.freq = 2, redemption_value = 100)
+  ytm[i,8] =  ytm_17
+}
+
+
+#2024.01.18
+for (i in 1:10) {
+  cr = price$Coupon[i]
+  bv = price$X2024.01.18[i]
+  md = price$Maturity_Date[i]
+  ytm_18 = bond.yield("2024-01-18", md, coupon = cr , freq = 2, bv, comp.freq = 2, redemption_value = 100)
+  ytm[i,9] =  ytm_18
+}
+
+
+#2024.01.19
+for (i in 1:10) {
+  cr = price$Coupon[i]
+  bv = price$X2024.01.19[i]
+  md = price$Maturity_Date[i]
+  ytm_19 = bond.yield("2024-01-19", md, coupon = cr , freq = 2, bv, comp.freq = 2, redemption_value = 100)
+  ytm[i,10] =  ytm_19
+}
+
+
+```
+
+
+```{r}
+#plot yield curve
+x <- seq(0.5,5,0.5)
+cols<-1:10
+
+
+plot(x,ytm[,1],type="l", col=cols[1],xlab="Time to Maturity (Years)",ylab="Yield to Maturity", 
+     main =" 5 Year Yield Curve of 10 Days")
+
+
+for(i in 2:10){
+  lines(x,ytm[,i],col = cols[i+1])
+}
+
+legend("topright",legend = c("2024-01-08", "2024-01-09","2024-01-10","2024-01-11","2024-01-12",
+                                "2024-01-15","2024-01-16","2024-01-17","2024-01-18","2024-01-19"),
+       lty=c(1,1), lwd=c(2,2),cex=0.5, col=cols)
+```
+
+```{r}
+coupon <- price$Coupon * 0.5
+bv <- data.frame(price[,c(5:14)])
+spot <-matrix(ncol = 10, nrow = 11)
+for (i in 1:10) {
+  sr <- c()
+  Price <- bv[i]
+  for (j in 1:11) {
+    if (j == 1){
+      r1 <- (((100*coupon[j] + 100) / Price[j,])^2) - 1
+      sr[j] = r1
+    }
+    else { 
+      cpn <- 0
+      for (k in 1:(j-1)) {
+        cpn <- cpn + (100 * coupon[j]) / ((1 + sr[k])^(k))
+    }
+      rt <- ((100*coupon[j] + 100)/(Price[j,]-cpn))^(2/(j)) - 1
+      sr[j] <- rt
+    }
+  }
+  spot[,i] <- sr
+}
+spot
+```
+
+```{r}
+x <- seq(1,5,0.5)
+subset <- spot[-c(1:2), ]
+cols = 1:10
+
+plot(x,subset[,1],type="l", col = cols[1], xlab="Time to Maturity (Years)",ylab="Spot rate", main =" 5-Year Spot Curve of 10 Days")
+for (i in 2:10) {
+  lines(x, subset[,i], col = cols[i+1])
+}
+legend("topright",legend = c("2024-01-08", "2024-01-09","2024-01-10","2024-01-11","2024-01-12","2024-01-15","2024-01-16","2024-01-17","2024-01-18","2024-01-19"), lty=c(1,1), lwd=c(2,2),cex=0.5, col = cols)
+```
+
+```{r}
+forward <- matrix(ncol = 10, nrow = 4)
+ss <- spot[c(3, 5, 7, 9), ]
+for (i in 1:10) {
+  fr <- c()
+  sub <- ss[, i]
+  b = (1 + sub[1])^2
+  for (j in 1:4) {
+      f1 = (((1 + sub[j])^(2 + j) / b)^(1 / j)) - 1
+      fr[j] = f1
+  }
+  forward[,i] <- fr
+}
+forward
+
+```
+
+```{r}
+
+x <- seq(1,4,1)
+cols = 1:10
+
+plot(x, forward[,1],type="l", col = cols[1],ylab="Forward Rate", main =" 5-Year Forward of 10 Days")
+for (i in 2:9) {
+  lines(x, forward[,i], col = cols[i])
+}
+legend("topright",legend = c("2024-01-08", "2024-01-09","2024-01-10","2024-01-11","2024-01-12","2024-01-15","2024-01-16","2024-01-17","2024-01-18","2024-01-19"), lty=c(1,1), lwd=c(2,2),cex=0.5, col = cols)
+```
+
+```{r}
+yield <- matrix(ncol = 9, nrow = 5)
+  for (i in 1:9){
+    yield[1,i]<-log(ytm[2,i+1]/ytm[2,i])
+    yield[2,i]<-log(ytm[4,i+1]/ytm[4,i])
+    yield[3,i]<-log(ytm[6,i+1]/ytm[6,i])
+    yield[4,i]<-log(ytm[8,i+1]/ytm[8,i])
+    yield[5,i]<-log(ytm[10,i+1]/ytm[10,i])
+    }
+yield <- t(yield)
+
+covyield = cov(yield)
+covyield
+
+```
+
+```{r}
+f <- matrix(ncol = 9, nrow = 4)
+for (i in 1:9){
+  f[1,i]<-log(forward[1,i+1]/forward[1,i])
+  f[2,i]<-log(forward[2,i+1]/forward[2,i])
+  f[3,i]<-log(forward[3,i+1]/forward[3,i])
+  f[4,i]<-log(forward[4,i+1]/forward[4,i])
+}
+f <- t(f)
+
+covforw = cov(f)
+covforw
+
+```
+
+```{r}
+ey <- eigen(covyield)
+ey$values
+ey$vectors
+```
+
+
+```{r}
+ef <- eigen(covforw)
+ef$values
+ef$vectors
+```
+```
+
+
